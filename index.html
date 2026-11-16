@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>수학 6-2 | 우리 반 비례배분 활용 퀴즈</title>
+    <!-- Tailwind CSS 로드 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Jua & Noto Sans KR -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome 아이콘 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tone.js (효과음 합성) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <!-- Canvas Confetti (축하 효과) -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #fef3c7 0%, #e0e7ff 50%, #dcfce7 100%);
+            min-height: 100vh;
+            user-select: none;
+        }
+        .font-jua {
+            font-family: 'Jua', sans-serif;
+        }
+        /* 입체 버튼 효과 */
+        .btn-3d {
+            transition: all 0.1s ease;
+            box-shadow: 0 5px 0 rgba(0, 0, 0, 0.16);
+        }
+        .btn-3d:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.16);
+        }
+        /* 분수 표현 CSS */
+        .frac {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: middle;
+            line-height: 1.05;
+            margin: 0 3px;
+        }
+        .frac-num {
+            border-bottom: 2px solid currentColor;
+            padding: 0 5px 2px 5px;
+            font-weight: 800;
+        }
+        .frac-den {
+            padding: 2px 5px 0 5px;
+            font-weight: 800;
+        }
+        /* 애니메이션 */
+        @keyframes bounceIn {
+            0% { transform: scale(0.85); opacity: 0; }
+            60% { transform: scale(1.04); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+        .animate-bounce-in {
+            animation: bounceIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+        .animate-shake {
+            animation: shake 0.4s ease-in-out;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-between p-3 sm:p-6 text-slate-800">
+
+    <!-- 상단 헤더 -->
+    <header class="w-full max-w-4xl bg-white/95 backdrop-blur-md rounded-3xl shadow-lg p-4 mb-4 border-2 border-amber-200 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center text-2xl shadow-md">
+                <i class="fa-solid fa-users"></i>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded-full">수학 6-2</span>
+                    <span class="text-xs font-semibold text-orange-600">4. 비례식과 비례배분 [비례배분 활용]</span>
+                </div>
+                <h1 class="font-jua text-xl sm:text-2xl text-slate-800 tracking-wide">우리 반 비례배분 활용 퀴즈</h1>
+            </div>
+        </div>
+
+        <!-- 네비게이션 -->
+        <div class="flex items-center gap-2 sm:gap-3">
+            <button id="btn-sound" onclick="toggleSound()" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition" title="효과음 켜기/끄기">
+                <i id="sound-icon" class="fa-solid fa-volume-high"></i>
+            </button>
+            <button id="btn-nav-study" onclick="switchView('study')" class="px-4 py-2 rounded-xl font-bold text-sm bg-amber-500 text-white shadow-sm transition flex items-center gap-1.5">
+                <i class="fa-solid fa-lightbulb"></i> <span class="hidden sm:inline">비례배분 공식</span>
+            </button>
+            <button id="btn-nav-quiz" onclick="switchView('quiz')" class="px-4 py-2 rounded-xl font-bold text-sm bg-amber-50 text-amber-800 hover:bg-amber-100 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-gamepad"></i> <span>10문제 도전!</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- 메인 컨테이너 -->
+    <main class="w-full max-w-4xl flex-1 flex flex-col justify-center">
+
+        <!-- [화면 1] 비례배분 핵심 원리 화면 -->
+        <section id="view-study" class="bg-white/95 backdrop-blur-md rounded-3xl shadow-xl p-6 sm:p-8 border-2 border-amber-200 animate-bounce-in">
+            <div class="text-center mb-6">
+                <span class="inline-block bg-amber-100 text-amber-800 font-bold px-4 py-1 rounded-full text-sm mb-2">시작하기 전 핵심 정리!</span>
+                <h2 class="font-jua text-2xl sm:text-3xl text-slate-800">전체를 주어진 비로 똑똑하게 나누는 「비례배분」!</h2>
+                <p class="text-slate-500 text-sm sm:text-base mt-1">우리 반 14명 친구들과 함께 비례배분 공식을 익히고 10문제 객관식 퀴즈를 풀어보아요.</p>
+            </div>
+
+            <!-- 우리 반 참여 학생 명단 배지 -->
+            <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 mb-6 text-center">
+                <div class="text-xs font-bold text-slate-500 mb-2"><i class="fa-solid fa-star text-amber-400"></i> 오늘의 퀴즈 주인공 (우리 반 14명)</div>
+                <div class="flex flex-wrap justify-center gap-1.5 sm:gap-2">
+                    <span class="px-2.5 py-1 rounded-full bg-white border border-amber-200 text-xs font-bold text-slate-700 shadow-sm">바오</span>
+                    <span class="px-2.5 py-1 rounded-full bg-white border border-amber-200 text-xs font-bold text-slate-700 shadow-sm">태훈</span>
+                    <span class="px-2.5 py-1 rounded-full bg-white border border-amber-200 text-xs font-bold text-slate-700 shadow-sm">선유</span>
+                    <span class="px-2.5 py-1 rounded-full bg-white border border-amber-200 text-xs font-bold text-slate-700 shadow-sm">은유</span>
+                    <span class="px-2.5 py-1 rounded-full bg-white border border-amber-200 text-xs font-bold text-slate-700 shadow-sm">성현</span>
+                    <span class="px-2.5 py-1 rounded-full bg-white border border-amber-200 text-xs font-bold text-slate-700 shadow-sm">주안</span>
+                    <span class="px-2.5 py-1 rounded-full bg-white border border-amber-200 text-xs font-bold text-slate-700 shadow-sm">연수</span>
+                    <span class="px-2.5 py-1 rounded-full bg-white border border-amber-200 text-xs font-bold text-slate-700 shadow-sm">주원</span>
+                    <span class="px-2.5 py-1 rounded-full bg-white border border-amber-200 text-xs font-bold text-slate-700 shadow-sm">준혁정</span>
+                    <span class="px-2.5 py-1 rounded-full bg-white border border-amber-200 text-xs font-bold text-slate-700 shadow-sm">수빈</span>
+                    <span class="px-2.5 py-1 rounded-full bg-white border border-amber-200 text-xs font-bold text-slate-700 shadow-sm">무궁</span>
+                    <span class="px-2.5 py-1 rounded-full bg-white border border-amber-200 text-xs font-bold text-slate-700 shadow-sm">준혁최</span>
+                    <span class="px-2.5 py-1 rounded-full bg-white border border-amber-200 text-xs font-bold text-slate-700 shadow-sm">수아</span>
+                    <span class="px-2.5 py-1 rounded-full bg-white border border-amber-200 text-xs font-bold text-slate-700 shadow-sm">재윤</span>
+                </div>
+            </div>
+
+            <!-- 비례배분 공식 시각화 -->
+            <div class="bg-gradient-to-br from-amber-50 via-white to-indigo-50 rounded-3xl p-5 sm:p-6 border-2 border-amber-200/80 mb-6">
+                <div class="text-center font-jua text-lg sm:text-xl text-amber-900 mb-4">
+                    전체를 <span class="text-rose-600">가</span> : <span class="text-indigo-600">나</span> 로 비례배분할 때
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-2xl border-2 border-rose-200 flex items-center justify-center gap-2 text-base sm:text-lg font-bold shadow-sm">
+                        <span class="text-rose-600 font-jua text-xl">가 몫</span>
+                        <span>= 전체 ×</span>
+                        <span class="frac text-rose-600"><span class="frac-num">가</span><span class="frac-den">가 + 나</span></span>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border-2 border-indigo-200 flex items-center justify-center gap-2 text-base sm:text-lg font-bold shadow-sm">
+                        <span class="text-indigo-600 font-jua text-xl">나 몫</span>
+                        <span>= 전체 ×</span>
+                        <span class="frac text-indigo-600"><span class="frac-num">나</span><span class="frac-den">가 + 나</span></span>
+                    </div>
+                </div>
+                <div class="mt-4 bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-center text-xs sm:text-sm text-emerald-900">
+                    <strong>꿀팁!</strong> 비의 숫자가 크면 먼저 <strong>가장 간단한 자연수의 비</strong>로 줄인 뒤 비례배분하면 계산이 훨씬 쉬워져요!
+                </div>
+            </div>
+
+            <!-- 퀴즈 시작 버튼 -->
+            <div class="flex justify-center">
+                <button onclick="startQuiz()" class="btn-3d w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-jua text-xl sm:text-2xl flex items-center justify-center gap-3">
+                    <i class="fa-solid fa-rocket"></i>
+                    <span>우리 반 10문제 객관식 퀴즈 시작!</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- [화면 2] 퀴즈 진행 화면 -->
+        <section id="view-quiz" class="hidden bg-white/95 backdrop-blur-md rounded-3xl shadow-xl p-5 sm:p-8 border-2 border-amber-200">
+            <!-- 상단 상태바 -->
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4 pb-4 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <span id="q-badge" class="bg-amber-500 text-white font-jua text-lg px-4 py-1 rounded-full shadow-sm">문제 1 / 10</span>
+                    <span id="q-category" class="bg-slate-100 text-slate-600 text-xs sm:text-sm font-bold px-3 py-1 rounded-full">상금 나누기</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div id="combo-badge" class="hidden bg-rose-100 text-rose-600 font-bold text-xs sm:text-sm px-3 py-1 rounded-full border border-rose-200 animate-bounce">
+                        🔥 <span id="combo-count">0</span>연속 정답!
+                    </div>
+                    <div class="bg-amber-100 text-amber-800 font-bold text-sm sm:text-base px-4 py-1 rounded-full flex items-center gap-1.5">
+                        <i class="fa-solid fa-star text-amber-500"></i>
+                        <span id="score-display">0</span>점
+                    </div>
+                </div>
+            </div>
+
+            <!-- 프로그레스 바 -->
+            <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden mb-5">
+                <div id="progress-bar" class="h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500 rounded-full" style="width: 10%;"></div>
+            </div>
+
+            <!-- 등장인물 배지 & 문제 상황 카드 -->
+            <div class="bg-gradient-to-br from-amber-50/90 to-orange-50/70 rounded-2xl p-4 sm:p-6 border border-amber-200/80 mb-5">
+                <div id="q-characters" class="flex flex-wrap items-center gap-2 mb-3"></div>
+                <h2 id="q-title" class="font-jua text-xl sm:text-2xl text-slate-800 leading-relaxed mb-2"></h2>
+                <p id="q-subtitle" class="text-xs sm:text-sm font-semibold text-amber-800 bg-white/80 inline-block px-3 py-1 rounded-lg border border-amber-200/60"></p>
+            </div>
+
+            <!-- 객관식 4지 선다 영역 -->
+            <div id="q-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6">
+            </div>
+
+            <!-- 피드백 영역 -->
+            <div id="feedback-box" class="hidden rounded-2xl p-4 sm:p-5 mb-6 border-2 transition-all">
+                <div class="flex items-start gap-3">
+                    <div id="feedback-icon" class="w-10 h-10 rounded-full flex items-center justify-center text-xl shrink-0 mt-0.5"></div>
+                    <div class="flex-1">
+                        <h4 id="feedback-title" class="font-jua text-lg sm:text-xl mb-1"></h4>
+                        <div id="feedback-desc" class="text-sm sm:text-base leading-relaxed"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 하단 버튼 -->
+            <div class="flex items-center justify-between gap-3">
+                <button id="btn-hint" onclick="toggleHint()" class="px-4 py-3 rounded-xl bg-sky-100 hover:bg-sky-200 text-sky-800 font-bold text-sm transition flex items-center gap-1.5">
+                    <i class="fa-regular fa-lightbulb"></i> <span>풀이 힌트</span>
+                </button>
+
+                <div class="flex items-center gap-3 ml-auto">
+                    <button id="btn-submit" onclick="checkAnswer()" class="btn-3d px-6 sm:px-8 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-white font-jua text-lg sm:text-xl flex items-center gap-2">
+                        <i class="fa-solid fa-check"></i> <span>정답 확인</span>
+                    </button>
+                    <button id="btn-next" onclick="nextQuestion()" class="hidden btn-3d px-6 sm:px-8 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-jua text-lg sm:text-xl flex items-center gap-2">
+                        <span>다음 문제</span> <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 힌트 박스 -->
+            <div id="hint-box" class="hidden mt-4 p-3.5 rounded-xl bg-sky-50 border border-sky-200 text-sky-900 text-sm flex items-center gap-2">
+                <i class="fa-solid fa-circle-info text-sky-500 shrink-0"></i>
+                <span id="hint-text"></span>
+            </div>
+        </section>
+
+        <!-- [화면 3] 최종 결과 화면 -->
+        <section id="view-result" class="hidden bg-white/95 backdrop-blur-md rounded-3xl shadow-xl p-6 sm:p-10 border-2 border-amber-200 text-center animate-bounce-in">
+            <div id="result-badge-icon" class="w-24 h-24 mx-auto rounded-full bg-gradient-to-tr from-amber-400 to-orange-400 text-white flex items-center justify-center text-5xl shadow-lg mb-4">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+            
+            <span class="inline-block bg-amber-100 text-amber-800 font-bold px-4 py-1 rounded-full text-sm mb-2">우리 반 비례배분 챌린지 완료!</span>
+            <h2 id="result-title" class="font-jua text-3xl sm:text-4xl text-slate-800 mb-2">비례배분 활용 마스터!</h2>
+            <p id="result-message" class="text-slate-600 text-base sm:text-lg mb-6"></p>
+
+            <!-- 점수 요약 -->
+            <div class="grid grid-cols-3 gap-3 sm:gap-4 max-w-lg mx-auto mb-8">
+                <div class="bg-amber-50 p-4 rounded-2xl border border-amber-200">
+                    <div class="text-xs font-bold text-amber-700 mb-1">최종 점수</div>
+                    <div class="font-jua text-2xl sm:text-3xl text-amber-700"><span id="final-score">100</span>점</div>
+                </div>
+                <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-200">
+                    <div class="text-xs font-bold text-emerald-600 mb-1">정답 개수</div>
+                    <div class="font-jua text-2xl sm:text-3xl text-emerald-700"><span id="final-correct">10</span> / 10</div>
+                </div>
+                <div class="bg-rose-50 p-4 rounded-2xl border border-rose-200">
+                    <div class="text-xs font-bold text-rose-500 mb-1">최대 콤보</div>
+                    <div class="font-jua text-2xl sm:text-3xl text-rose-600"><span id="final-combo">10</span>연속</div>
+                </div>
+            </div>
+
+            <!-- 문제별 O/X 리뷰 -->
+            <div class="max-w-2xl mx-auto text-left mb-8">
+                <h3 class="font-jua text-lg text-slate-700 mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-amber-500"></i> 문제별 결과 한눈에 보기
+                </h3>
+                <div id="result-summary-list" class="grid grid-cols-2 sm:grid-cols-5 gap-2"></div>
+            </div>
+
+            <!-- 하단 버튼 -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <button onclick="switchView('study')" class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-jua text-lg transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-lightbulb"></i> <span>비례배분 공식 보기</span>
+                </button>
+                <button onclick="startQuiz()" class="btn-3d w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-jua text-lg flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i> <span>처음부터 다시 도전!</span>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 하단 푸터 -->
+    <footer class="w-full max-w-4xl text-center text-xs text-slate-400 mt-4">
+        초등학교 6학년 2학기 수학 · 4단원 비례식과 비례배분 [비례배분 활용] 우리 반 맞춤형 퀴즈
+    </footer>
+
+    <!-- 커스텀 알림 토스트 -->
+    <div id="toast-msg" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-5 py-3 rounded-full shadow-xl text-sm font-bold flex items-center gap-2 opacity-0 pointer-events-none transition-opacity duration-300 z-50">
+        <i class="fa-solid fa-circle-exclamation text-amber-400"></i>
+        <span id="toast-text">알림 메시지</span>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. 효과음 시스템 (Tone.js)
+        // ==========================================
+        let soundEnabled = true;
+        let synth = null;
+
+        function initAudio() {
+            if (!synth && window.Tone) {
+                synth = new Tone.PolySynth(Tone.Synth).toDestination();
+                synth.volume.value = -8;
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('sound-icon');
+            if (soundEnabled) {
+                icon.className = 'fa-solid fa-volume-high';
+                showToast('효과음이 켜졌습니다.');
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-slate-400';
+                showToast('효과음이 꺼졌습니다.');
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled || !window.Tone) return;
+            try {
+                if (Tone.context.state !== 'running') Tone.start();
+                initAudio();
+                const now = Tone.now();
+                if (type === 'click') {
+                    synth.triggerAttackRelease('C5', '32n', now);
+                } else if (type === 'correct') {
+                    synth.triggerAttackRelease(['C5', 'E5', 'G5'], '16n', now);
+                    synth.triggerAttackRelease('C6', '8n', now + 0.12);
+                } else if (type === 'wrong') {
+                    synth.triggerAttackRelease('E3', '16n', now);
+                    synth.triggerAttackRelease('Eb3', '8n', now + 0.12);
+                } else if (type === 'fanfare') {
+                    synth.triggerAttackRelease('C5', '16n', now);
+                    synth.triggerAttackRelease('E5', '16n', now + 0.1);
+                    synth.triggerAttackRelease('G5', '16n', now + 0.2);
+                    synth.triggerAttackRelease('C6', '4n', now + 0.3);
+                }
+            } catch (e) {}
+        }
+
+        // ==========================================
+        // 2. 토스트 알림 (alert 대체)
+        // ==========================================
+        let toastTimeout;
+        function showToast(message) {
+            const toast = document.getElementById('toast-msg');
+            document.getElementById('toast-text').textContent = message;
+            toast.classList.remove('opacity-0');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('opacity-0');
+            }, 2400);
+        }
+
+        // ==========================================
+        // 3. 우리 반 14명 학생 이름 기반 10문제 (4지 선다 객관식)
+        // 학생 명단: 바오, 태훈, 선유, 은유, 성현, 주안, 연수, 주원, 준혁정, 수빈, 무궁, 준혁최, 수아, 재윤
+        // ==========================================
+        const quizData = [
+            // 문제 1: 바오, 태훈 (로또 당첨금 1 : 3 배분)
+            {
+                id: 1,
+                category: '로또 당첨금 나누기 🎰',
+                characters: ['바오', '태훈'],
+                icon: 'fa-sack-dollar',
+                title: '바오와 태훈이가 함께 산 복권이 1등에 당첨되어 세금을 떼고 8,000만 원을 받았습니다! 복권 값을 낸 비율인 1 : 3으로 당첨금을 나누어 가질 때, 태훈이가 받게 될 돈은 얼마일까요?',
+                subtitle: '전체 금액: 8,000만 원 | 바오 : 태훈 = 1 : 3',
+                options: [
+                    { id: 'a', text: '2,000만 원', isCorrect: false },
+                    { id: 'b', text: '4,000만 원', isCorrect: false },
+                    { id: 'c', text: '6,000만 원', isCorrect: true },
+                    { id: 'd', text: '7,000만 원', isCorrect: false }
+                ],
+                hint: '전체를 1 + 3 = 4등분 한 것 중에서 태훈이는 3만큼 가집니다! (8,000만 원 × 3/4)',
+                explanation: '바오와 태훈이가 1 : 3으로 나누므로 태훈이의 몫은 전체의 3 / (1 + 3) = 3/4입니다. 따라서 8,000만 원 × 3/4 = 6,000만 원입니다! (바오는 2,000만 원)'
+            },
+            // 문제 2: 선유, 은유 (스티커 나누기 3 : 2)
+            {
+                id: 2,
+                category: '인기 캐릭터 스티커 배분 ✨',
+                characters: ['선유', '은유'],
+                icon: 'fa-star',
+                title: '선유와 은유가 문구점에서 귀여운 캐릭터 스티커 45장을 함께 샀습니다. 두 사람이 낸 돈의 비가 3 : 2일 때, 선유와 은유가 각각 가져야 할 스티커는 몇 장일까요?',
+                subtitle: '전체 스티커: 45장 | 선유 : 은유 = 3 : 2',
+                options: [
+                    { id: 'a', text: '선유 27장, 은유 18장', isCorrect: true },
+                    { id: 'b', text: '선유 30장, 은유 15장', isCorrect: false },
+                    { id: 'c', text: '선유 25장, 은유 20장', isCorrect: false },
+                    { id: 'd', text: '선유 18장, 은유 27장', isCorrect: false }
+                ],
+                hint: '전체를 3 + 2 = 5묶음으로 나누면 한 묶음에 45 ÷ 5 = 9장씩 들어갑니다!',
+                explanation: '선유는 45 × 3/(3+2) = 45 × 3/5 = 27(장), 은유는 45 × 2/5 = 18(장)을 가집니다!'
+            },
+            // 문제 3: 성현, 주안 (유튜브 구독자 이벤트 상금 - 큰 비를 간단히 고친 후 비례배분)
+            {
+                id: 3,
+                category: '게임 대회 상금 나누기 🏆',
+                characters: ['성현', '주안'],
+                icon: 'fa-trophy',
+                title: '성현이와 주안이가 2인 1조 게임 대회에서 우승하여 상금 14만 원을 받았습니다! 두 사람의 활약 점수 비가 40 : 30일 때, 성현이가 받을 상금은 얼마일까요?',
+                subtitle: '전체 상금: 14만 원 | 성현 : 주안 = 40 : 30 (먼저 간단한 자연수의 비로!)',
+                options: [
+                    { id: 'a', text: '6만 원', isCorrect: false },
+                    { id: 'b', text: '7만 원', isCorrect: false },
+                    { id: 'c', text: '8만 원', isCorrect: true },
+                    { id: 'd', text: '10만 원', isCorrect: false }
+                ],
+                hint: '40 : 30을 먼저 10으로 나누어 4 : 3으로 간단히 만든 다음, 14만 원을 4 : 3으로 나누어 보세요!',
+                explanation: '40 : 30을 간단한 자연수의 비로 나타내면 4 : 3입니다. 성현이의 상금은 14만 원 × 4/(4+3) = 14만 원 × 4/7 = 8만 원입니다!'
+            },
+            // 문제 4: 연수, 주원 (초콜릿 36개 5 : 4 배분 후 차이 구하기)
+            {
+                id: 4,
+                category: '달콤한 초콜릿 나누기 🍫',
+                characters: ['연수', '주원'],
+                icon: 'fa-candy-cane',
+                title: '연수와 주원이가 학급 퀴즈 상품으로 받은 초콜릿 36개를 5 : 4로 나누어 가졌습니다. 연수는 주원이보다 초콜릿을 몇 개 더 많이 가졌을까요?',
+                subtitle: '전체 초콜릿: 36개 | 연수 : 주원 = 5 : 4',
+                options: [
+                    { id: 'a', text: '2개', isCorrect: false },
+                    { id: 'b', text: '4개', isCorrect: true },
+                    { id: 'c', text: '6개', isCorrect: false },
+                    { id: 'd', text: '8개', isCorrect: false }
+                ],
+                hint: '연수 몫(36 × 5/9)과 주원이 몫(36 × 4/9)을 각각 구한 뒤 두 수의 차를 구해 보세요!',
+                explanation: '연수는 36 × 5/9 = 20(개), 주원이는 36 × 4/9 = 16(개)를 가졌습니다. 따라서 연수가 주원이보다 20 - 16 = 4(개) 더 많이 가졌습니다!'
+            },
+            // 문제 5: 준혁정, 수빈 (실과 시간 딸기 우유 만들기 2 : 5)
+            {
+                id: 5,
+                category: '맛있는 딸기 우유 만들기 🍓',
+                characters: ['준혁정', '수빈'],
+                icon: 'fa-mug-hot',
+                title: '실과 요리 실습 시간에 준혁정과 수빈이가 딸기청과 흰 우유를 2 : 5의 비로 섞어 딸기 우유 700 mL를 만들려고 합니다. 수빈이가 준비해야 할 흰 우유는 몇 mL일까요?',
+                subtitle: '전체 양: 700 mL | 딸기청 : 흰 우유 = 2 : 5',
+                options: [
+                    { id: 'a', text: '200 mL', isCorrect: false },
+                    { id: 'b', text: '350 mL', isCorrect: false },
+                    { id: 'c', text: '500 mL', isCorrect: true },
+                    { id: 'd', text: '550 mL', isCorrect: false }
+                ],
+                hint: '흰 우유는 전체 700 mL 중에서 5 / (2 + 5) 만큼 필요합니다!',
+                explanation: '딸기청과 흰 우유의 비가 2 : 5이므로, 흰 우유의 양은 700 × 5/(2+5) = 700 × 5/7 = 500(mL)입니다! (딸기청은 200 mL)'
+            },
+            // 문제 6: 무궁, 준혁최 (직사각형 둘레와 가로·세로 비례배분 - 응용)
+            {
+                id: 6,
+                category: '우리 반 게시판 꾸미기 📐',
+                characters: ['무궁', '준혁최'],
+                icon: 'fa-ruler-combined',
+                title: '무궁이와 준혁최가 길이가 60 cm인 색테이프를 남김없이 모두 사용하여 직사각형 모양의 학급 게시판 테두리를 만들었습니다. 가로와 세로의 비가 3 : 2일 때, 이 직사각형의 「가로」는 몇 cm일까요?',
+                subtitle: '주의! 둘레 60 cm에는 가로 2개, 세로 2개가 들어 있어요!',
+                options: [
+                    { id: 'a', text: '12 cm', isCorrect: false },
+                    { id: 'b', text: '18 cm', isCorrect: true },
+                    { id: 'c', text: '24 cm', isCorrect: false },
+                    { id: 'd', text: '36 cm', isCorrect: false }
+                ],
+                hint: '직사각형 둘레가 60 cm이므로 (가로 + 세로) 한 쌍의 합은 60 ÷ 2 = 30 cm입니다! 이제 30 cm를 3 : 2로 비례배분해 보세요.',
+                explanation: '직사각형 둘레가 60 cm이므로 (가로 + 세로) = 30 cm입니다. 30 cm를 3 : 2로 비례배분하면 가로는 30 × 3/(3+2) = 18(cm)입니다!'
+            },
+            // 문제 7: 수아, 재윤 (분수의 비를 간단히 고쳐서 용돈 나누기)
+            {
+                id: 7,
+                category: '미술 작품 판매 수익 나누기 🎨',
+                characters: ['수아', '재윤'],
+                icon: 'fa-palette',
+                title: '수아와 재윤이가 알뜰시장에서 직접 그린 엽서를 팔아 35,000원을 벌었습니다! 두 사람이 일한 시간의 비가 1/2 : 1/3 일 때, 수아가 받을 돈은 얼마일까요?',
+                subtitle: '전체 수익: 35,000원 | 수아 : 재윤 = 1/2 : 1/3',
+                options: [
+                    { id: 'a', text: '14,000원', isCorrect: false },
+                    { id: 'b', text: '17,500원', isCorrect: false },
+                    { id: 'c', text: '21,000원', isCorrect: true },
+                    { id: 'd', text: '25,000원', isCorrect: false }
+                ],
+                hint: '1/2 : 1/3 의 전항과 후항에 최소공배수 6을 곱하면 3 : 2가 됩니다! 이제 35,000원을 3 : 2로 나누어 보세요.',
+                explanation: '1/2 : 1/3 을 간단한 자연수의 비로 나타내면 3 : 2입니다. 따라서 수아가 받을 돈은 35,000 × 3/(3+2) = 35,000 × 3/5 = 21,000원입니다!'
+            },
+            // 문제 8: 바오, 선유, 성현 (세 친구가 2 : 3 : 5로 로또/보물 나누기 - 3항 비례배분!)
+            {
+                id: 8,
+                category: '세 친구의 보물 상자 나누기 💎',
+                characters: ['바오', '선유', '성현'],
+                icon: 'fa-gem',
+                title: '바오, 선유, 성현이 세 명이 보물찾기 대회에서 금화 코인 100개를 찾았습니다! 세 사람이 2 : 3 : 5로 코인을 나누어 가질 때, 가장 많이 받는 성현이는 몇 개를 가질까요?',
+                subtitle: '전체 코인: 100개 | 바오 : 선유 : 성현 = 2 : 3 : 5',
+                options: [
+                    { id: 'a', text: '20개', isCorrect: false },
+                    { id: 'b', text: '30개', isCorrect: false },
+                    { id: 'c', text: '40개', isCorrect: false },
+                    { id: 'd', text: '50개', isCorrect: true }
+                ],
+                hint: '세 수의 비도 똑같아요! 전체를 2 + 3 + 5 = 10으로 나눈 것 중 성현이는 5만큼 가집니다!',
+                explanation: '전체를 2 + 3 + 5 = 10으로 나누었을 때 성현이의 몫은 5/10 (= 1/2)입니다. 따라서 100 × 5/10 = 50(개)입니다! (바오 20개, 선유 30개)'
+            },
+            // 문제 9: 태훈, 연수, 수아 (체육 시간 자유시간 60분 배분)
+            {
+                id: 9,
+                category: '학급 파티 놀이 시간 배분 🎉',
+                characters: ['태훈', '연수', '수아'],
+                icon: 'fa-clock',
+                title: '학급 파티 시간 60분을 태훈이가 추천한 「피구」, 연수가 추천한 「보드게임」, 수아가 추천한 「장기자랑」에 3 : 2 : 1로 나누어 배정했습니다. 연수가 추천한 보드게임은 몇 분 동안 할까요?',
+                subtitle: '전체 시간: 60분 | 피구(태훈) : 보드게임(연수) : 장기자랑(수아) = 3 : 2 : 1',
+                options: [
+                    { id: 'a', text: '10분', isCorrect: false },
+                    { id: 'b', text: '15분', isCorrect: false },
+                    { id: 'c', text: '20분', isCorrect: true },
+                    { id: 'd', text: '30분', isCorrect: false }
+                ],
+                hint: '전체를 3 + 2 + 1 = 6으로 나눈 것 중에서 보드게임(연수)은 2만큼 차지합니다!',
+                explanation: '전체 60분을 3 + 2 + 1 = 6으로 나누면 한 칸당 10분입니다. 보드게임은 2만큼이므로 60 × 2/6 = 20(분)입니다!'
+            },
+            // 문제 10: 은유, 주안, 주원, 준혁정, 수빈, 무궁, 준혁최, 재윤 (우리 반 전체 대잔치 피자 나누기)
+            {
+                id: 10,
+                category: '우리 반 우정 피자 파티 🍕',
+                characters: ['은유', '주안', '주원', '준혁정', '수빈', '무궁', '준혁최', '재윤'],
+                icon: 'fa-pizza-slice',
+                title: '은유·주안·주원·준혁정 팀(4명)과 수빈·무궁·준혁최·재윤 팀(4명)이 우리 반 미니올림픽에서 공동 1등을 하여 상금 90,000원을 받았습니다! 1라운드와 2라운드 승리 점수의 비 5 : 4로 상금을 나눌 때, 수빈이네 팀이 받을 상금은 얼마일까요?',
+                subtitle: '전체 상금: 90,000원 | 은유네 팀 : 수빈이네 팀 = 5 : 4',
+                options: [
+                    { id: 'a', text: '36,000원', isCorrect: false },
+                    { id: 'b', text: '40,000원', isCorrect: true },
+                    { id: 'c', text: '45,000원', isCorrect: false },
+                    { id: 'd', text: '50,000원', isCorrect: false }
+                ],
+                hint: '수빈이네 팀은 전체 90,000원 중에서 4 / (5 + 4) 만큼 상금을 받습니다!',
+                explanation: '수빈·무궁·준혁최·재윤 팀의 상금은 90,000 × 4/(5+4) = 90,000 × 4/9 = 40,000원입니다! (은유네 팀은 50,000원) 우리 반 14명 모두 최고예요!'
+            }
+        ];
+
+        // ==========================================
+        // 4. 상태 변수 및 화면 전환
+        // ==========================================
+        let currentIdx = 0;
+        let score = 0;
+        let combo = 0;
+        let maxCombo = 0;
+        let isAnswered = false;
+        let userResults = [];
+        let selectedOptionId = null;
+
+        function switchView(viewName) {
+            playSound('click');
+            document.getElementById('view-study').classList.add('hidden');
+            document.getElementById('view-quiz').classList.add('hidden');
+            document.getElementById('view-result').classList.add('hidden');
+
+            const btnStudy = document.getElementById('btn-nav-study');
+            const btnQuiz = document.getElementById('btn-nav-quiz');
+
+            if (viewName === 'study') {
+                document.getElementById('view-study').classList.remove('hidden');
+                btnStudy.className = 'px-4 py-2 rounded-xl font-bold text-sm bg-amber-500 text-white shadow-sm transition flex items-center gap-1.5';
+                btnQuiz.className = 'px-4 py-2 rounded-xl font-bold text-sm bg-amber-50 text-amber-800 hover:bg-amber-100 transition flex items-center gap-1.5';
+            } else if (viewName === 'quiz') {
+                if (userResults.length === quizData.length) {
+                    document.getElementById('view-result').classList.remove('hidden');
+                } else {
+                    document.getElementById('view-quiz').classList.remove('hidden');
+                    if (currentIdx === 0 && userResults.length === 0) {
+                        renderQuestion();
+                    }
+                }
+                btnQuiz.className = 'px-4 py-2 rounded-xl font-bold text-sm bg-amber-500 text-white shadow-sm transition flex items-center gap-1.5';
+                btnStudy.className = 'px-4 py-2 rounded-xl font-bold text-sm bg-amber-50 text-amber-800 hover:bg-amber-100 transition flex items-center gap-1.5';
+            } else if (viewName === 'result') {
+                document.getElementById('view-result').classList.remove('hidden');
+            }
+        }
+
+        function startQuiz() {
+            playSound('click');
+            currentIdx = 0;
+            score = 0;
+            combo = 0;
+            maxCombo = 0;
+            userResults = [];
+            updateScoreUI();
+            switchView('quiz');
+            renderQuestion();
+        }
+
+        function updateScoreUI() {
+            document.getElementById('score-display').textContent = score;
+            const comboBadge = document.getElementById('combo-badge');
+            if (combo >= 2) {
+                comboBadge.classList.remove('hidden');
+                document.getElementById('combo-count').textContent = combo;
+            } else {
+                comboBadge.classList.add('hidden');
+            }
+        }
+
+        // ==========================================
+        // 5. 문제 렌더링 (객관식 4지 선다)
+        // ==========================================
+        function renderQuestion() {
+            const q = quizData[currentIdx];
+            isAnswered = false;
+            selectedOptionId = null;
+
+            document.getElementById('q-badge').textContent = `문제 ${currentIdx + 1} / ${quizData.length}`;
+            document.getElementById('q-category').textContent = q.category;
+            document.getElementById('progress-bar').style.width = `${((currentIdx + 1) / quizData.length) * 100}%`;
+
+            // 등장인물 배지 렌더링
+            const charContainer = document.getElementById('q-characters');
+            charContainer.innerHTML = `<span class="text-xs font-bold text-amber-700 mr-1"><i class="fa-solid ${q.icon}"></i> 등장 친구:</span>`;
+            q.characters.forEach(name => {
+                const tag = document.createElement('span');
+                tag.className = 'px-2.5 py-0.5 rounded-full bg-amber-500 text-white text-xs font-bold shadow-sm';
+                tag.textContent = name;
+                charContainer.appendChild(tag);
+            });
+
+            document.getElementById('q-title').textContent = q.title;
+            document.getElementById('q-subtitle').textContent = q.subtitle;
+
+            document.getElementById('hint-box').classList.add('hidden');
+            document.getElementById('hint-text').textContent = q.hint;
+            document.getElementById('feedback-box').classList.add('hidden');
+
+            document.getElementById('btn-submit').classList.remove('hidden');
+            document.getElementById('btn-next').classList.add('hidden');
+            document.getElementById('btn-next').innerHTML = currentIdx === quizData.length - 1 
+                ? `<span>최종 결과 보기</span> <i class="fa-solid fa-flag-checkered"></i>` 
+                : `<span>다음 문제</span> <i class="fa-solid fa-arrow-right"></i>`;
+
+            // 4개의 객관식 보기 버튼 생성
+            const optContainer = document.getElementById('q-options');
+            optContainer.innerHTML = '';
+            const numLabels = ['①', '②', '③', '④'];
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.id = `opt-btn-${opt.id}`;
+                btn.className = 'w-full text-left p-4 sm:p-5 rounded-2xl bg-white border-2 border-slate-200 hover:border-amber-400 hover:bg-amber-50/40 font-bold text-slate-700 text-base sm:text-lg transition flex items-center gap-3.5 shadow-sm';
+                btn.innerHTML = `
+                    <span class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-sm font-black shrink-0 transition">${numLabels[idx]}</span>
+                    <span class="flex-1">${opt.text}</span>
+                `;
+                btn.onclick = () => selectOption(opt.id);
+                optContainer.appendChild(btn);
+            });
+        }
+
+        function selectOption(optId) {
+            if (isAnswered) return;
+            playSound('click');
+            selectedOptionId = optId;
+
+            const q = quizData[currentIdx];
+            q.options.forEach(opt => {
+                const btn = document.getElementById(`opt-btn-${opt.id}`);
+                const circle = btn.querySelector('span:first-child');
+                if (opt.id === optId) {
+                    btn.className = 'w-full text-left p-4 sm:p-5 rounded-2xl bg-amber-50 border-2 border-amber-500 font-bold text-amber-950 text-base sm:text-lg transition flex items-center gap-3.5 shadow-md transform scale-[1.01]';
+                    circle.className = 'w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center text-sm font-black shrink-0 transition';
+                } else {
+                    btn.className = 'w-full text-left p-4 sm:p-5 rounded-2xl bg-white border-2 border-slate-200 hover:border-amber-400 font-bold text-slate-700 text-base sm:text-lg transition flex items-center gap-3.5 shadow-sm';
+                    circle.className = 'w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-sm font-black shrink-0 transition';
+                }
+            });
+        }
+
+        function toggleHint() {
+            playSound('click');
+            document.getElementById('hint-box').classList.toggle('hidden');
+        }
+
+        // ==========================================
+        // 6. 정답 채점 및 피드백
+        // ==========================================
+        function checkAnswer() {
+            if (isAnswered) return;
+            if (!selectedOptionId) {
+                showToast('정답이라고 생각하는 보기를 먼저 선택해 주세요!');
+                return;
+            }
+
+            const q = quizData[currentIdx];
+            const chosenOpt = q.options.find(o => o.id === selectedOptionId);
+            const isCorrect = chosenOpt ? chosenOpt.isCorrect : false;
+
+            isAnswered = true;
+            userResults.push({ id: q.id, isCorrect });
+
+            // 보기 버튼에 정답/오답 색상 표시
+            q.options.forEach(opt => {
+                const btn = document.getElementById(`opt-btn-${opt.id}`);
+                const circle = btn.querySelector('span:first-child');
+                if (opt.isCorrect) {
+                    btn.className = 'w-full text-left p-4 sm:p-5 rounded-2xl bg-emerald-50 border-2 border-emerald-500 font-bold text-emerald-950 text-base sm:text-lg flex items-center gap-3.5 shadow-md';
+                    circle.className = 'w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center text-sm font-black shrink-0';
+                    circle.innerHTML = '<i class="fa-solid fa-check"></i>';
+                } else if (opt.id === selectedOptionId && !opt.isCorrect) {
+                    btn.className = 'w-full text-left p-4 sm:p-5 rounded-2xl bg-rose-50 border-2 border-rose-500 font-bold text-rose-950 text-base sm:text-lg flex items-center gap-3.5 shadow-sm';
+                    circle.className = 'w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center text-sm font-black shrink-0';
+                    circle.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                } else {
+                    btn.className = 'w-full text-left p-4 sm:p-5 rounded-2xl bg-white/60 border-2 border-slate-100 font-bold text-slate-400 text-base sm:text-lg flex items-center gap-3.5';
+                }
+            });
+
+            const fbBox = document.getElementById('feedback-box');
+            const fbIcon = document.getElementById('feedback-icon');
+            const fbTitle = document.getElementById('feedback-title');
+            const fbDesc = document.getElementById('feedback-desc');
+
+            fbBox.classList.remove('hidden', 'bg-emerald-50', 'border-emerald-300', 'bg-rose-50', 'border-rose-300', 'animate-bounce-in', 'animate-shake');
+
+            if (isCorrect) {
+                playSound('correct');
+                score += 10;
+                combo += 1;
+                if (combo > maxCombo) maxCombo = combo;
+
+                fbBox.classList.add('bg-emerald-50', 'border-emerald-300', 'animate-bounce-in');
+                fbIcon.className = 'w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xl shrink-0 mt-0.5';
+                fbIcon.innerHTML = '<i class="fa-solid fa-check"></i>';
+                fbTitle.className = 'font-jua text-lg sm:text-xl mb-1 text-emerald-800';
+                fbTitle.textContent = combo >= 2 ? `정답입니다! (${combo}연속 정답 중! 🔥)` : '정답입니다! 비례배분 계산 완벽해요! 🎉';
+                fbDesc.className = 'text-sm sm:text-base leading-relaxed text-emerald-900';
+                fbDesc.textContent = q.explanation;
+
+                if (window.confetti) {
+                    confetti({ particleCount: 40, spread: 55, origin: { y: 0.7 } });
+                }
+            } else {
+                playSound('wrong');
+                combo = 0;
+
+                fbBox.classList.add('bg-rose-50', 'border-rose-300', 'animate-shake');
+                fbIcon.className = 'w-10 h-10 rounded-full bg-rose-500 text-white flex items-center justify-center text-xl shrink-0 mt-0.5';
+                fbIcon.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                fbTitle.className = 'font-jua text-lg sm:text-xl mb-1 text-rose-800';
+                fbTitle.textContent = '아쉬워요! 풀이를 함께 확인해 볼까요?';
+                fbDesc.className = 'text-sm sm:text-base leading-relaxed text-rose-900';
+                fbDesc.textContent = q.explanation;
+            }
+
+            updateScoreUI();
+            document.getElementById('btn-submit').classList.add('hidden');
+            document.getElementById('btn-next').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            playSound('click');
+            if (currentIdx < quizData.length - 1) {
+                currentIdx++;
+                renderQuestion();
+            } else {
+                showFinalResult();
+            }
+        }
+
+        function showFinalResult() {
+            playSound('fanfare');
+            switchView('result');
+
+            const correctCount = userResults.filter(r => r.isCorrect).length;
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('final-correct').textContent = correctCount;
+            document.getElementById('final-combo').textContent = maxCombo;
+
+            const titleEl = document.getElementById('result-title');
+            const msgEl = document.getElementById('result-message');
+            const iconEl = document.getElementById('result-badge-icon');
+
+            if (score === 100) {
+                titleEl.textContent = '만점 달성! 우리 반 비례배분 최고 전문가! 👑';
+                msgEl.textContent = '바오, 태훈, 선유, 은유, 성현, 주안, 연수, 주원, 준혁정, 수빈, 무궁, 준혁최, 수아, 재윤이와 함께 10문제를 모두 맞혔어요!';
+                iconEl.innerHTML = '<i class="fa-solid fa-crown"></i>';
+                if (window.confetti) confetti({ particleCount: 130, spread: 85, origin: { y: 0.6 } });
+            } else if (score >= 70) {
+                titleEl.textContent = '훌륭해요! 비례배분 활용 우수 장학생! 🌟';
+                msgEl.textContent = '실생활 비례배분 문제를 아주 잘 해결했어요! 틀린 문제만 살짝 다시 살펴볼까요?';
+                iconEl.innerHTML = '<i class="fa-solid fa-trophy"></i>';
+                if (window.confetti) confetti({ particleCount: 65, spread: 65, origin: { y: 0.6 } });
+            } else {
+                titleEl.textContent = '조금만 더 연습하면 비례배분 마스터! 💪';
+                msgEl.textContent = '비례배분 공식을 다시 확인하고 우리 반 친구들과 한 번 더 도전해 보세요!';
+                iconEl.innerHTML = '<i class="fa-solid fa-medal"></i>';
+            }
+
+            const summaryList = document.getElementById('result-summary-list');
+            summaryList.innerHTML = '';
+            userResults.forEach((res, idx) => {
+                const badge = document.createElement('div');
+                if (res.isCorrect) {
+                    badge.className = 'p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between text-sm font-bold text-emerald-700';
+                    badge.innerHTML = `<span>${idx + 1}번</span> <i class="fa-solid fa-circle-check text-emerald-500"></i>`;
+                } else {
+                    badge.className = 'p-2.5 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-between text-sm font-bold text-rose-700';
+                    badge.innerHTML = `<span>${idx + 1}번</span> <i class="fa-solid fa-circle-xmark text-rose-500"></i>`;
+                }
+                summaryList.appendChild(badge);
+            });
+        }
+    </script>
+</body>
+</html>
